@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object Repo {
-
     fun loadData(context: Context) :MutableLiveData<List<ToDo>>{
          val _todoList = MutableLiveData<List<ToDo>>()
 
@@ -22,8 +21,4 @@ object Repo {
 
         return _todoList
     }
-
-
-
-
 }

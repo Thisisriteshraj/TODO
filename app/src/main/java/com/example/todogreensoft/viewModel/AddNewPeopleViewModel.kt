@@ -7,10 +7,8 @@ import com.example.todogreensoft.roomDB.ToDo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class AddNewPeopleViewModel:ViewModel()
-{
+class AddNewPeopleViewModel:ViewModel() {
 
     fun insertNewToDo(todo:ToDo,context: Context) {
 
