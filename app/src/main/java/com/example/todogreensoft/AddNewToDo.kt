@@ -6,18 +6,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.todogreensoft.databinding.ActivityAddNewToDoBinding
-import com.example.todogreensoft.roomDB.RoomInstance
 import com.example.todogreensoft.roomDB.ToDo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.todogreensoft.viewModel.AddNewPeopleViewModel
 
 class AddNewToDo : AppCompatActivity() {
 
 
     private lateinit var todo: ToDo
+    private lateinit var viewModel: AddNewPeopleViewModel
+
 
     private lateinit var binding: ActivityAddNewToDoBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +29,8 @@ class AddNewToDo : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        viewModel = ViewModelProvider(this)[AddNewPeopleViewModel::class.java]
+
 
 
         val pastActivity = intent.getStringExtra("pastActivity")
@@ -52,59 +53,42 @@ class AddNewToDo : AppCompatActivity() {
 
                 binding.save.setOnClickListener {
 
+                    var newTODo= todo?.let { it1 ->
+                        ToDo(
+                            it1.number,  binding.title.text.toString(),
+                            binding.description.text.toString())
+                    }
 
-                    CoroutineScope(Dispatchers.IO)
-                        .launch {
 
-                            if (todo != null) {
-                                RoomInstance.getRoomInstance(this@AddNewToDo)
-                                    .toDoDAO()
-                                    .updateToDoByNumber(
-                                        todo.number,
-                                        binding.title.text.toString(),
-                                        binding.description.text.toString()
-                                    )
-                            }
+                    if (newTODo != null) {
+                        viewModel.updateExistingToDo(newTODo,this)
+                    }
+                    finish()
 
-                            withContext(Dispatchers.Main)
-                            {
-                                onBackPressedDispatcher.onBackPressed()
-                            }
-
-                        }
 
 
                 }
 
                 binding.deletebtn.setOnClickListener {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        if (todo != null) {
-                            RoomInstance.getRoomInstance(this@AddNewToDo)
-                                .toDoDAO()
-                                .deleteToDo(todo)
-                        }
 
-                        finish()
+                    if (todo != null) {
+                        viewModel.deleteTODo(todo, this)
                     }
+
+
+                    finish()
+
                 }
 
                 binding.buttonisComplete.setOnClickListener {
 
                     if (todo != null) {
                         val newIsComplete = !todo.idComplete
+                      viewModel.updateTick(todo,newIsComplete, this)
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            RoomInstance.getRoomInstance(this@AddNewToDo)
-                                .toDoDAO()
-                                .updateIsComplete(todo.number, newIsComplete)
-
-
-                            withContext(Dispatchers.Main) {
-                                todo.idComplete = newIsComplete
-                                binding.buttonisComplete.text = if (newIsComplete) "Mark as Incomplete" else "Mark as Complete"
-                            }
-                        }
                     }
+
+                    finish()
 
                 }
 
@@ -118,12 +102,9 @@ class AddNewToDo : AppCompatActivity() {
                 binding.save.setOnClickListener {
                     todo =
                         ToDo(0, binding.title.text.toString(), binding.description.text.toString())
-                    CoroutineScope(Dispatchers.IO).launch {
-                        RoomInstance.getRoomInstance(this@AddNewToDo).toDoDAO().insertToDo(todo)
+                    viewModel.insertNewToDo(todo,this)
+                    finish()
 
-
-                        finish()
-                    }
                 }
             }
         }
