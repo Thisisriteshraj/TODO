@@ -31,7 +31,7 @@ class ToDoAdapter(private var toDoList: ArrayList<ToDo>, private var onItemClick
             onItemClick.onItemClickOfToDoItem(toDoList[position])
         }
 
-        //
+
         if (toDoList[position].idComplete) {
 
             holder.binding.isComplete.visibility = View.VISIBLE
